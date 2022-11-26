@@ -274,6 +274,7 @@ namespace HelloWorld
         private object CreateDevice(JToken body)
         {
             var device = body.ToObject<Device>();
+            Log(LogLevel.Information, JsonConvert.SerializeObject(device));
             const string userId = "myuserid";
             
             // Log(LogLevel.Information, JsonConvert.SerializeObject(device));
@@ -287,9 +288,17 @@ namespace HelloWorld
             groupsQuery = groupsQuery.Substring(0, groupsQuery.Length - 1);
             groupsQuery += "]";
             
+            var idQuery = "";
+            if(device.id != null)
+            {
+                idQuery = $"id: \"{device.id}\"";
+            }
+            
+            Log(LogLevel.Information, idQuery);
+            
             var data = new JObject
             {
-                ["query"] = $"mutation MyMutation {{ createDevice(input: {{active: {device.active.ToString().ToLower()}, deviceType: \"{device.deviceType}\", groups: {groupsQuery}, name: \"{device.name}\", userID: \"{userId}\", wifi: \"{device.wifi}\"}}) {{ id }} }}"
+                ["query"] = $"mutation MyMutation {{ createDevice(input: {{active: {device.active.ToString().ToLower()}, deviceType: \"{device.deviceType}\", groups: {groupsQuery}, name: \"{device.name}\", userID: \"{userId}\", wifi: \"{device.wifi}\", {idQuery}}}) {{ id }} }}"
             };
             Log(LogLevel.Information, data.ToString());
             var response = PostRequest(data);
@@ -328,10 +337,10 @@ namespace HelloWorld
                 throw new Exception(response);
             }
             json = json["listDevices"]["items"];
-            if (!json.HasValues)
-            {
-                throw new Exception(response);
-            }
+            // if (!json.HasValues)
+            // {
+            //     throw new Exception(response);
+            // }
             
             var devices = json.ToObject<List<Device>>();
             

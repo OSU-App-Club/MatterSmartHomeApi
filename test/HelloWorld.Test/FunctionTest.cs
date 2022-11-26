@@ -29,6 +29,34 @@ namespace HelloWorld.Tests
         }
         
         [Fact]
+        public async Task TestGetDevices()
+        {
+            var request = new APIGatewayProxyRequest
+            {
+                Path = "/devices",
+                HttpMethod = "GET"
+            };
+            var logger = Logger.CreateLogger(_output);
+            var context = new TestLambdaContext();
+            var function = new Function(logger);
+            var response = await function.FunctionHandler(request, context);
+            _output.WriteLine("Lambda response status code: " + response.StatusCode);
+            _output.WriteLine("Lambda response body: " + response.Body);
+            
+            // do asserts
+            var expectedResponse = new APIGatewayProxyResponse
+            {
+                // Body = JsonSerializer.Serialize(new {}),
+                StatusCode = (int) HttpStatusCode.OK,
+                Headers = new Dictionary<string, string> {{"Content-Type", "application/json"}}
+            };
+
+            // Assert.Equal(expectedResponse.Body, response.Body);
+            Assert.Equal(expectedResponse.Headers, response.Headers);
+            Assert.Equal(expectedResponse.StatusCode, response.StatusCode);
+        }
+        
+        [Fact]
         public async Task TestGetDevice()
         {
             var request = new APIGatewayProxyRequest
@@ -99,6 +127,7 @@ namespace HelloWorld.Tests
                 HttpMethod = "POST",
                 Body = JsonSerializer.Serialize(new
                 {
+                    // id = "mytestid",
                     name = "mydevicename",
                     active = true,
                     wifi = "mywifi",
